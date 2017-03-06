@@ -1,6 +1,7 @@
 package com.panarello.mpandroidchart;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -55,45 +57,45 @@ import java.util.Locale;
 import java.util.Set;
 
 public class GraficoDinamico extends Activity implements CompoundButton.OnCheckedChangeListener {
-    private final  String TAG = "GRF-DYM";
+    private final String TAG = "GRF-DYM";
 
-
-    private BarChart barHChart;
+    private HorizontalBarChart barHChart;
     private BarChart barVChart;
     private PieChart pieChart;
     private LineChart lineChart;
     private SeekBar seekBar;
 
-    private View gerarRadioButtonOpcao(List<Grafico> listaGraficos){
+    private View gerarRadioButtonOpcao(int alt, List<Grafico> listaGraficos) {
         RadioGroup radioGroup = new RadioGroup(this);
         radioGroup.setId(View.generateViewId());
         radioGroup.setOrientation(LinearLayout.HORIZONTAL);
-        radioGroup.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
+        radioGroup.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
 
-        for(Grafico g : listaGraficos){
+        for (Grafico g : listaGraficos) {
             RadioButton rButton = new RadioButton(this);
             rButton.setId(View.generateViewId());
-            rButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT,1));
+            rButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 0.25f));
             rButton.setText(g.getDescricaoGrafico().getTexto());
             rButton.setTextSize(12f);
             rButton.setTag(g);
+
             rButton.setOnCheckedChangeListener(this);
             radioGroup.addView(rButton);
         }
-        return  radioGroup;
+        return radioGroup;
     }
 
-    private View opcoesGrafico(List<Grafico> listaGraficos){
+    private View opcoesGrafico(int alt, List<Grafico> listaGraficos) {
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setId(View.generateViewId());
-        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,200));
+        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-
-        linearLayout.addView(gerarRadioButtonOpcao(listaGraficos));
+        linearLayout.addView(gerarRadioButtonOpcao(alt, listaGraficos));
         return linearLayout;
     }
 
-    private int alturaTela(){
+    private int alturaTela() {
         Display display = getWindowManager().getDefaultDisplay();
         String displayName = display.getName();  // minSdkVersion=17+
         Log.i(TAG, "displayName  = " + displayName);
@@ -122,11 +124,11 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         return height;
     }
 
-    private View criarSlider(int alt){
+    private View criarSlider(int alt) {
         SeekBar lSeekBar = new SeekBar(this);
         lSeekBar.setId(View.generateViewId());
-        lSeekBar.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,alt));
-        lSeekBar.setOnSeekBarChangeListener(new SeekBarListenner(barVChart,barHChart,lineChart,pieChart));
+        lSeekBar.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
+        lSeekBar.setOnSeekBarChangeListener(new SeekBarListenner(barVChart, barHChart, lineChart, pieChart));
         lSeekBar.setProgress(0);
         lSeekBar.incrementProgressBy(10);
         lSeekBar.setMax(100);
@@ -135,19 +137,19 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if(isChecked && buttonView.getTag() != null && buttonView.getTag() instanceof Grafico){
+        if (isChecked && buttonView.getTag() != null && buttonView.getTag() instanceof Grafico) {
             //Toast toast = ;
             //toast.show();
-            Grafico grafico =(Grafico) buttonView.getTag();
+            Grafico grafico = (Grafico) buttonView.getTag();
             barVChart.setVisibility(View.GONE);
             barHChart.setVisibility(View.GONE);
             lineChart.setVisibility(View.GONE);
             pieChart.setVisibility(View.GONE);
-            Toast.makeText(getApplicationContext(),grafico.getDescricaoGrafico().getTexto(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), grafico.getDescricaoGrafico().getTexto(), Toast.LENGTH_SHORT).show();
             switch (grafico.getTipo()) {
                 case BARRA_HORIZONTAL:
                     barHChart.setVisibility(View.VISIBLE);
-                  break;
+                    break;
                 case BARRA_VERTICAL:
                     barVChart.setVisibility(View.VISIBLE);
                     break;
@@ -164,9 +166,9 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
     }
 
     // Conversor
-    private void initEixo(TipoGrafico tipo,Eixo eixo, XAxis axis){
+    private void initEixo(TipoGrafico tipo, Eixo eixo, XAxis axis) {
         axis.setEnabled(eixo.isHabilitado());
-        if(eixo.isHabilitado()) {
+        if (eixo.isHabilitado()) {
             if (!TipoFormatacao.SEM_FORMATACAO.equals(eixo.getTipoFormatacao())) {
                 axis.setValueFormatter(new ValueAxisFormatter(eixo.getTipoFormatacao(), eixo.getFormatacao()));
             }
@@ -184,19 +186,23 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
                 //xAxis.setTypeface(Typeface.create(Typeface.MONOSPACE,2));
             }
         }
-        if(eixo.getLinhaLimite() != null && eixo.getLinhaLimite().isHabilitado()) {
+        if (eixo.getLinhaLimite() != null && eixo.getLinhaLimite().isHabilitado()) {
             axis.addLimitLine(linhaLimite(eixo.getLinhaLimite()));
         }
 
-        if(tipo.equals(TipoGrafico.LINHA)){
+        if (tipo.equals(TipoGrafico.LINHA)) {
             axis.setAxisMaximum(eixo.getValorMaximo());
             axis.setAxisMinimum(eixo.getValorMinimo());
         }
+
+        if(tipo.equals(TipoGrafico.BARRA_HORIZONTAL)){
+            axis.setPosition(XAxis.XAxisPosition.TOP_INSIDE);
+        }
     }
 
-    private void initEixo(Eixo eixo, YAxis axis){
+    private void initEixo(TipoGrafico tipo,Eixo eixo, YAxis axis) {
         axis.setEnabled(eixo.isHabilitado());
-        if(eixo.isHabilitado()) {
+        if (eixo.isHabilitado()) {
             if (!TipoFormatacao.SEM_FORMATACAO.equals(eixo.getTipoFormatacao())) {
                 axis.setValueFormatter(new ValueAxisFormatter(eixo.getTipoFormatacao(), eixo.getFormatacao()));
             }
@@ -217,37 +223,41 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             }
         }
 
-        if(eixo.getLinhaLimite() != null && eixo.getLinhaLimite().isHabilitado()) {
+        if (eixo.getLinhaLimite() != null && eixo.getLinhaLimite().isHabilitado()) {
             axis.addLimitLine(linhaLimite(eixo.getLinhaLimite()));
         }
 
         axis.setAxisMaximum(eixo.getValorMaximo());
         axis.setAxisMinimum(eixo.getValorMinimo());
+
+        if(tipo.equals(TipoGrafico.BARRA_HORIZONTAL)){
+            axis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+        }
     }
 
-    private LimitLine linhaLimite(LinhaLimite linha){
-        LimitLine line = new LimitLine(linha.getValorLimite(),linha.getDescricao().getTexto());
+    private LimitLine linhaLimite(LinhaLimite linha) {
+        LimitLine line = new LimitLine(linha.getValorLimite(), linha.getDescricao().getTexto());
 
         line.setTextSize(linha.getDescricao().getTamanhoFonte());
         line.setLineWidth(linha.getEspessuraLinha().getValor());
         line.setLineColor(linha.getCorLinha());
 
-        switch (linha.getTipoPontilhado()){
+        switch (linha.getTipoPontilhado()) {
             case CURTO:
-                line.enableDashedLine(5f,10f,0);
+                line.enableDashedLine(5f, 10f, 0);
                 break;
             case MEDIO:
-                line.enableDashedLine(10f,10f,0);
+                line.enableDashedLine(10f, 10f, 0);
                 break;
             case LONGO:
-                line.enableDashedLine(30f,10f,0);
+                line.enableDashedLine(30f, 10f, 0);
                 break;
             case NENHUM:
-                line.enableDashedLine(100f,0f,0);
+                line.enableDashedLine(100f, 0f, 0);
             default:
                 break;
         }
-        switch (linha.getTipoPosicaoDescricao()){
+        switch (linha.getTipoPosicaoDescricao()) {
             case LEFT_TOP:
                 line.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
                 break;
@@ -267,9 +277,9 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         return line;
     }
 
-    private Description initDescricao(Grafico grafico){
+    private Description initDescricao(Grafico grafico) {
         Description description = new Description();
-        if (grafico.getDescricaoGrafico().isHabilitar()){
+        if (grafico.getDescricaoGrafico().isHabilitar()) {
             description.setEnabled(true);
             description.setText(grafico.getDescricaoGrafico().getTexto());
 
@@ -296,15 +306,15 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         return description;
     }
 
-    private void ajustarGraficoBarraEixoY(BarChart barra){
+    private void ajustarGraficoBarraEixoY(BarChart barra) {
         float maxValor = Float.MIN_VALUE;
         if (barra.getData() != null &&
                 barra.getData().getDataSetCount() > 0) {
 
-            for(IBarDataSet ds : barra.getData().getDataSets() ){
-                BarDataSet set =  (BarDataSet) ds;
-                for(BarEntry be : set.getValues()){
-                    if( maxValor < be.getY() ){
+            for (IBarDataSet ds : barra.getData().getDataSets()) {
+                BarDataSet set = (BarDataSet) ds;
+                for (BarEntry be : set.getValues()) {
+                    if (maxValor < be.getY()) {
                         maxValor = be.getY();
                     }
                 }
@@ -315,19 +325,19 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         }
     }
 
-    private void ajustarGraficoLinhaEixos(LineChart line){
+    private void ajustarGraficoLinhaEixos(LineChart line) {
         float maxValorY = Float.MIN_VALUE;
         float maxValorX = Float.MIN_VALUE;
         if (line.getData() != null &&
                 line.getData().getDataSetCount() > 0) {
 
-            for(ILineDataSet ds : line.getData().getDataSets() ){
-                LineDataSet set =  (LineDataSet) ds;
-                for(Entry be : set.getValues()){
-                    if( maxValorY < be.getY() ){
+            for (ILineDataSet ds : line.getData().getDataSets()) {
+                LineDataSet set = (LineDataSet) ds;
+                for (Entry be : set.getValues()) {
+                    if (maxValorY < be.getY()) {
                         maxValorY = be.getY();
                     }
-                    if( maxValorX < be.getX() ){
+                    if (maxValorX < be.getX()) {
                         maxValorX = be.getX();
                     }
                 }
@@ -340,21 +350,21 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
     }
 
 
-    private LineData initDataLine(Grafico grafico){
+    private LineData initDataLine(Grafico grafico) {
         List<ConjutoDado> dados = grafico.getConjutoDados();
         List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-        int hashUltimo=0;
+        int hashUltimo = 0;
 
-        for(ConjutoDado conjutoDado: dados){
+        for (ConjutoDado conjutoDado : dados) {
 
             ArrayList<Entry> valores = new ArrayList<>();
             Set<Integer> coresItem = new HashSet<>();
             Set<Integer> coresTexto = new HashSet<>();
 
-            for(Dado dado:conjutoDado.getListaValores()){
+            for (Dado dado : conjutoDado.getListaValores()) {
                 coresItem.add(dado.getCorItem());
                 coresTexto.add(dado.getCorTexto());
-                valores.add(new Entry(dado.getValorX(),dado.getValorY(),new Integer(dado.hashCode())));
+                valores.add(new Entry(dado.getValorX(), dado.getValorY(), new Integer(dado.hashCode())));
                 hashUltimo = dado.hashCode();
             }
 
@@ -372,7 +382,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             lineDataSet.setForm(Legend.LegendForm.CIRCLE);
             lineDataSet.setFormSize(grafico.getEstilo().getTamanhoTextoLegendas().getValor());
 
-            lineDataSet.setValueFormatter(new ValueFormatter(hashUltimo,conjutoDado.getTipoFormatacao(),"") );
+            lineDataSet.setValueFormatter(new ValueFormatter(hashUltimo, conjutoDado.getTipoFormatacao(), ""));
 
             lineDataSet.setDrawValues(true);
             lineDataSet.setDrawCircleHole(false);
@@ -387,37 +397,37 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         return new LineData(dataSets);
     }
 
-    private BarData initDataBar(Grafico grafico){
+    private BarData initDataBar(Grafico grafico) {
         List<ConjutoDado> dados = grafico.getConjutoDados();
         ArrayList<IBarDataSet> dataSets = new ArrayList<>();
 
-        int hashUltimo=0;
-        for(ConjutoDado conjutoDado: dados){
+        int hashUltimo = 0;
+        for (ConjutoDado conjutoDado : dados) {
 
             ArrayList<BarEntry> valores = new ArrayList<>();
             Set<Integer> coresItem = new HashSet<>();
             Set<Integer> coresTexto = new HashSet<>();
 
-            for(Dado dado:conjutoDado.getListaValores()){
+            for (Dado dado : conjutoDado.getListaValores()) {
                 coresItem.add(dado.getCorItem());
                 coresTexto.add(dado.getCorTexto());
-                valores.add(new BarEntry(dado.getValorX(),dado.getValorY(),new Integer(dado.hashCode())));
+                valores.add(new BarEntry(dado.getValorX(), dado.getValorY(), new Integer(dado.hashCode())));
                 hashUltimo = dado.hashCode();
             }
 
             conjutoDado.getTipoFormatacao();
 
             BarDataSet barDataSet = new BarDataSet(valores, conjutoDado.getDescricaoConjunto());
-            barDataSet.setColors(new ArrayList<Integer>(coresItem));
-            barDataSet.setValueTextColors(new ArrayList<Integer>(coresTexto));
+            barDataSet.setColors(new ArrayList<>(coresItem));
+            barDataSet.setValueTextColors(new ArrayList<>(coresTexto));
 
-            barDataSet.setDrawValues(conjutoDado.isExibirValores());
+            barDataSet.setDrawValues(true);
             barDataSet.setValueTextSize(conjutoDado.getTamanhoTextoItens());
 
             barDataSet.setForm(Legend.LegendForm.CIRCLE);
             barDataSet.setFormSize(grafico.getEstilo().getTamanhoTextoLegendas().getValor());
 
-            barDataSet.setValueFormatter(new ValueFormatter(hashUltimo,conjutoDado.getTipoFormatacao(),"") );
+            barDataSet.setValueFormatter(new ValueFormatter(hashUltimo, conjutoDado.getTipoFormatacao(), ""));
 
             dataSets.add(barDataSet);
         }
@@ -429,21 +439,22 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         //data.setValueTextColor(grafico.getDescricaoGrafico().getCor());
         //data.setValueTypeface(Typeface.DEFAULT);
 
-       return data;
+        return data;
     }
-    private  void  updateDataLine(LineChart line,int indiceLinha,List<Float> valores){
+
+    private void updateDataLine(LineChart line, int indiceLinha, List<Float> valores) {
         int indexValores = 0;
         if (line.getData() != null && line.getData().getDataSetCount() > 0) {
             LineDataSet linhaDataSet = (LineDataSet) line.getData().getDataSetByIndex(indiceLinha);
 
-            for(Entry entry : linhaDataSet.getValues()){
-                if(indexValores  < valores.size() ) {
+            for (Entry entry : linhaDataSet.getValues()) {
+                if (indexValores < valores.size()) {
                     entry.setY(valores.get(indexValores));
                     indexValores++;
                 }
             }
 
-            if(indexValores > 0) {
+            if (indexValores > 0) {
                 line.getData().notifyDataChanged();
                 line.notifyDataSetChanged();
                 ajustarGraficoLinhaEixos(line);
@@ -454,19 +465,19 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         }
     }
 
-    private void updateDataBar(BarChart bar,int indiceBarra,float[] valores){
+    private void updateDataBar(BarChart bar, int indiceBarra, float[] valores) {
         int indexValores = 0;
         if (bar.getData() != null && bar.getData().getDataSetCount() > 0) {
             BarDataSet barDataSet = (BarDataSet) bar.getData().getDataSetByIndex(indiceBarra);
 
-            for(Entry entry : barDataSet.getValues()){
-                if(indexValores  < valores.length ) {
+            for (Entry entry : barDataSet.getValues()) {
+                if (indexValores < valores.length) {
                     entry.setY(valores[indexValores]);
                     indexValores++;
                 }
             }
 
-            if(indexValores > 0) {
+            if (indexValores > 0) {
                 bar.getData().notifyDataChanged();
                 bar.notifyDataSetChanged();
                 ajustarGraficoBarraEixoY(bar);
@@ -477,7 +488,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         }
     }
 
-    private BarChart criarGraficoBarraVertical(int alt,Grafico grafico) {
+    private BarChart criarGraficoBarraVertical(int alt, Grafico grafico) {
         BarChart gBarra = new BarChart(this);
         gBarra.setId(View.generateViewId());
         gBarra.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
@@ -491,20 +502,20 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         gBarra.setDragEnabled(grafico.isHabilitarArrastar());
 
         //Inicializando os eixos do grafico
-        initEixo(grafico.getTipo(), grafico.getEixoX(),gBarra.getXAxis());
+        initEixo(grafico.getTipo(), grafico.getEixoX(), gBarra.getXAxis());
 
-        if(TipoEixo.EIXO_Y_DIREITA.equals(grafico.getEixoY().getTipoEixo())){
-            initEixo(grafico.getEixoY(),gBarra.getAxisRight());
+        if (TipoEixo.EIXO_Y_DIREITA.equals(grafico.getEixoY().getTipoEixo())) {
+            initEixo(grafico.getTipo(),grafico.getEixoY(), gBarra.getAxisRight());
             gBarra.getAxisLeft().setEnabled(false);
-        }else {
-            initEixo(grafico.getEixoY(),gBarra.getAxisLeft());
+        } else {
+            initEixo(grafico.getTipo(),grafico.getEixoY(), gBarra.getAxisLeft());
             gBarra.getAxisRight().setEnabled(false);
         }
 
         gBarra.setData(initDataBar(grafico));
 
         gBarra.setFitBars(true);
-        if(grafico.getEstilo().isHabilitarLegendas()) {
+        if (grafico.getEstilo().isHabilitarLegendas()) {
             gBarra.getLegend().setEnabled(true);
             gBarra.getLegend().setTextSize(grafico.getEstilo().getTamanhoTextoLegendas().getValor());
             gBarra.getLegend().setTextColor(grafico.getEstilo().getCorLegendas());
@@ -526,7 +537,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         return gBarra;
     }
 
-    private LineChart criarGraficoLinha(int alt,Grafico grafico){
+    private LineChart criarGraficoLinha(int alt, Grafico grafico) {
         LineChart line = new LineChart(this);
         line.setId(View.generateViewId());
         line.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
@@ -540,19 +551,19 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         line.setDragEnabled(grafico.isHabilitarArrastar());
 
         //Inicializando os eixos do grafico
-        initEixo(grafico.getTipo(),grafico.getEixoX(),line.getXAxis());
+        initEixo(grafico.getTipo(), grafico.getEixoX(), line.getXAxis());
 
-        if(TipoEixo.EIXO_Y_DIREITA.equals(grafico.getEixoY().getTipoEixo())){
-            initEixo(grafico.getEixoY(),line.getAxisRight());
+        if (TipoEixo.EIXO_Y_DIREITA.equals(grafico.getEixoY().getTipoEixo())) {
+            initEixo(grafico.getTipo(),grafico.getEixoY(), line.getAxisRight());
             line.getAxisLeft().setEnabled(false);
-        }else {
-            initEixo(grafico.getEixoY(),line.getAxisLeft());
+        } else {
+            initEixo(grafico.getTipo(),grafico.getEixoY(), line.getAxisLeft());
             line.getAxisRight().setEnabled(false);
         }
 
         line.setData(initDataLine(grafico));
 
-        if(grafico.getEstilo().isHabilitarLegendas()) {
+        if (grafico.getEstilo().isHabilitarLegendas()) {
             line.getLegend().setEnabled(true);
             line.getLegend().setTextSize(grafico.getEstilo().getTamanhoTextoLegendas().getValor());
             line.getLegend().setTextColor(grafico.getEstilo().getCorLegendas());
@@ -575,14 +586,56 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         return line;
     }
 
-    private BarChart criarGraficoBarraHorizontal(int alt,Grafico gbh){
-        BarChart bar = new BarChart(this);
-        bar.setId(View.generateViewId());
-        bar.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
-        return bar;
+    private HorizontalBarChart criarGraficoBarraHorizontal(int alt, Grafico grafico) {
+        HorizontalBarChart gBarra = new HorizontalBarChart(this);
+        gBarra.setId(View.generateViewId());
+        gBarra.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
+
+        gBarra.setDescription(initDescricao(grafico));
+
+        //Habilitando interação com o grafico
+        gBarra.setPinchZoom(grafico.isHabilitarZoom());
+        gBarra.setDoubleTapToZoomEnabled(grafico.isHabilitarZoom());
+        gBarra.setTouchEnabled(grafico.isHabilitarToque());
+        gBarra.setDragEnabled(grafico.isHabilitarArrastar());
+
+        //Inicializando os eixos do grafico
+        initEixo(grafico.getTipo(), grafico.getEixoX(), gBarra.getXAxis());
+
+        if (TipoEixo.EIXO_Y_DIREITA.equals(grafico.getEixoY().getTipoEixo())) {
+            initEixo(grafico.getTipo(),grafico.getEixoY(), gBarra.getAxisRight());
+            gBarra.getAxisLeft().setEnabled(false);
+        } else {
+            initEixo(grafico.getTipo(),grafico.getEixoY(), gBarra.getAxisLeft());
+            gBarra.getAxisRight().setEnabled(false);
+        }
+
+        gBarra.setData(initDataBar(grafico));
+
+        gBarra.setFitBars(true);
+        if (grafico.getEstilo().isHabilitarLegendas()) {
+            gBarra.getLegend().setEnabled(true);
+            gBarra.getLegend().setTextSize(grafico.getEstilo().getTamanhoTextoLegendas().getValor());
+            gBarra.getLegend().setTextColor(grafico.getEstilo().getCorLegendas());
+        } else {
+            gBarra.getLegend().setEnabled(false);
+        }
+
+        gBarra.setDrawBorders(grafico.getEstilo().isExibirBordas());
+        //gBarra.setBorderColor(grafico.getEstilo().getCorDaBorda());
+        //gBarra.setBorderWidth(grafico.getEstilo().getEspessuraBorda().getValor());
+
+        //gBarra.setDrawGridBackground(grafico.getEstilo().isExibirGradeDeFundo());
+        //gBarra.setGridBackgroundColor(grafico.getEstilo().getCorDeFundoGrade());
+        //gBarra.setBackgroundColor(grafico.getEstilo().getCorDeFundo()) ;
+
+        gBarra.animateX(grafico.getTipoAnimacao().getValor());
+        gBarra.animateY(grafico.getTipoAnimacao().getValor());
+
+        return gBarra;
     }
 
-    private PieChart criarGraficoPizza(int alt,Grafico gp){
+    private PieChart criarGraficoPizza(int alt, Grafico gp) {
         PieChart pie = new PieChart(this);
         pie.setId(View.generateViewId());
         pie.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
@@ -596,8 +649,8 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.activity_grafico_dinamico);
 
-        int alt = alturaTela()/3;
-        int altSlider = alturaTela()/10;
+        int alt = alturaTela() / 3;
+        int altSlider = alturaTela() / 10;
         List<Grafico> lista = new ArrayList<>();
         try {
             Grafico gbv = Grafico.montaGraficoBarraVertical(new JSONObject());
@@ -605,10 +658,10 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             Grafico gl = Grafico.montaGraficoLinha(new JSONObject());
             Grafico gp = Grafico.montaGraficoPizza(new JSONObject());
 
-            barVChart = criarGraficoBarraVertical(alt,gbv);
-            barHChart = criarGraficoBarraHorizontal(alt,gbv);
-            lineChart = criarGraficoLinha(alt,gl);
-            pieChart = criarGraficoPizza(alt,gp);
+            barVChart = criarGraficoBarraVertical(alt, gbv);
+            barHChart = criarGraficoBarraHorizontal(alt, gbh);
+            lineChart = criarGraficoLinha(alt, gl);
+            pieChart = criarGraficoPizza(alt, gp);
 
             barVChart.setVisibility(View.GONE);
             barHChart.setVisibility(View.GONE);
@@ -622,9 +675,10 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
             seekBar = (SeekBar) criarSlider(altSlider);
 
-            linearLayout.addView(opcoesGrafico(lista));
+            linearLayout.addView(opcoesGrafico(altSlider, lista));
             linearLayout.addView(barVChart);
             linearLayout.addView(lineChart);
+            linearLayout.addView(barHChart);
 
            /* linearLayout.addView(barHChart);
             linearLayout.addView(lineChart);
@@ -633,44 +687,43 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             linearLayout.addView(seekBar);
             //linearLayout.addView(criarGraficoBarraVertical(lista.get(0)));
 
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
     }
 
-    private float calculoBarra(BigDecimal valorAporte, BigDecimal valorMensal , int anoSaida){
-        float retorno = 1000f+(10f*anoSaida);
-        return  retorno;
+    private float calculoBarra(BigDecimal valorAporte, BigDecimal valorMensal, int anoSaida) {
+        float retorno = 1000f + (10f * anoSaida);
+        return retorno;
     }
 
-    private List<Float> calculoLinha(BigDecimal valorAporte, BigDecimal valorMensal , int anoSaida){
+    private List<Float> calculoLinha(BigDecimal valorAporte, BigDecimal valorMensal, int anoSaida) {
         List<Float> retorno = new ArrayList<>();
 
         retorno.add(1f);
 
-        float p2 =2.00f;
-        for(int i = 2 ; i<11 ;i++){
+        float p2 = 2.00f;
+        for (int i = 2; i < 11; i++) {
             retorno.add(p2);
-            p2 += p2 + (anoSaida/10);
+            p2 += p2 + (anoSaida / 10);
         }
 
-        return  retorno;
+        return retorno;
     }
 
 
     //Formatadores
 
-    public class ValueAxisFormatter implements IAxisValueFormatter{
-        private NumberFormat nf ;
+    public class ValueAxisFormatter implements IAxisValueFormatter {
+        private NumberFormat nf;
         private Locale local;
         private TipoFormatacao tipoFormatacao;
         private String formatacao;
 
         /**
-         *
          * @param local
          * @param tipoFormatacao -Enum com os tipos de formatacao aceitos
-         * @param formatacao - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
+         * @param formatacao     - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
          */
         public ValueAxisFormatter(Locale local, TipoFormatacao tipoFormatacao, String formatacao) {
             this.local = local;
@@ -680,12 +733,11 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         }
 
         /**
-         *
          * @param tipoFormatacao -Enum com os tipos de formatacao aceitos
-         * @param formatacao - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
+         * @param formatacao     - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
          */
         public ValueAxisFormatter(TipoFormatacao tipoFormatacao, String formatacao) {
-            this.local =  new Locale("pt", "BR");
+            this.local = new Locale("pt", "BR");
             this.nf = NumberFormat.getCurrencyInstance(this.local);
 
             this.tipoFormatacao = tipoFormatacao;
@@ -695,15 +747,15 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
         @Override
         public String getFormattedValue(float value, AxisBase axis) {
-            switch (tipoFormatacao){
+            switch (tipoFormatacao) {
                 case NUMERICO_COM_DECIMAL:
-                    return String.format(local,"%.2f",value);
+                    return String.format(local, "%.2f", value);
                 case NUMERICO_SEM_DECIMAL:
-                    return String.format(local,"%d",value);
+                    return String.format(local, "%d", value);
                 case MONETARIO:
                     return nf.format(value);
                 case REGEX:
-                    return String.format(local, formatacao,value);
+                    return String.format(local, formatacao, value);
                 case SEM_FORMATACAO:
                 default:
                     return String.valueOf(value);
@@ -713,21 +765,20 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
     public class ValueFormatter implements IValueFormatter {
 
-        private NumberFormat nf ;
+        private NumberFormat nf;
         private Locale local;
         private Integer hashEntryValorExibir;
         private TipoFormatacao tipoFormatacao;
         private String formatacao;
 
         /**
-         *
          * @param local
          * @param hashEntryValorExibir - hash para identificacao para exibir apenas esse Entry pelo hash
-         * @param tipoFormatacao -Enum com os tipos de formatacao aceitos
-         * @param formatacao - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
+         * @param tipoFormatacao       -Enum com os tipos de formatacao aceitos
+         * @param formatacao           - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
          */
         public ValueFormatter(Locale local, int hashEntryValorExibir, TipoFormatacao tipoFormatacao, String formatacao) {
-            this.local =  local;
+            this.local = local;
 
             this.hashEntryValorExibir = hashEntryValorExibir;
             this.tipoFormatacao = tipoFormatacao;
@@ -735,13 +786,12 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         }
 
         /**
-         *
          * @param hashEntryValorExibir - hash para identificacao para exibir apenas esse Entry pelo hash
-         * @param tipoFormatacao -Enum com os tipos de formatacao aceitos
-         * @param formatacao - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
+         * @param tipoFormatacao       -Enum com os tipos de formatacao aceitos
+         * @param formatacao           - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
          */
         public ValueFormatter(int hashEntryValorExibir, TipoFormatacao tipoFormatacao, String formatacao) {
-            this.local =  new Locale("pt", "BR");
+            this.local = new Locale("pt", "BR");
             this.nf = NumberFormat.getCurrencyInstance(this.local);
             this.hashEntryValorExibir = hashEntryValorExibir;
             this.tipoFormatacao = tipoFormatacao;
@@ -749,10 +799,9 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         }
 
         /**
-         *
          * @param local
          * @param tipoFormatacao -Enum com os tipos de formatacao aceitos
-         * @param formatacao - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
+         * @param formatacao     - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
          */
         public ValueFormatter(Locale local, TipoFormatacao tipoFormatacao, String formatacao) {
             this.local = local;
@@ -763,12 +812,11 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         }
 
         /**
-         *
          * @param tipoFormatacao -Enum com os tipos de formatacao aceitos
-         * @param formatacao - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
+         * @param formatacao     - formatacao usada qdo o tipo de formatacao for REGEX a mesma usada no String.format
          */
         public ValueFormatter(TipoFormatacao tipoFormatacao, String formatacao) {
-            this.local =  new Locale("pt", "BR");
+            this.local = new Locale("pt", "BR");
             this.nf = NumberFormat.getCurrencyInstance(this.local);
             this.hashEntryValorExibir = null;
             this.tipoFormatacao = tipoFormatacao;
@@ -781,21 +829,21 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             // write your logic here
 
             //So vai exibir o valor indicado
-            if(entry!=null && entry.getData() != null && hashEntryValorExibir != null
-                && entry.getData() instanceof Integer
-                && !((Integer)entry.getData()).equals(hashEntryValorExibir) ){
+            if (entry != null && entry.getData() != null && hashEntryValorExibir != null
+                    && entry.getData() instanceof Integer
+                    && !((Integer) entry.getData()).equals(hashEntryValorExibir)) {
                 return "";
             }
 
-            switch (tipoFormatacao){
+            switch (tipoFormatacao) {
                 case NUMERICO_COM_DECIMAL:
-                    return String.format(local,"%.2f",value);
+                    return String.format(local, "%.2f", value);
                 case NUMERICO_SEM_DECIMAL:
-                    return String.format(local,"%d",value);
+                    return String.format(local, "%d", value);
                 case MONETARIO:
                     return nf.format(value);
                 case REGEX:
-                   return String.format(local, formatacao,value);
+                    return String.format(local, formatacao, value);
                 case SEM_FORMATACAO:
                 default:
                     return String.valueOf(value);
@@ -805,15 +853,15 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
 
     //Listenner Seekbar
-    public class SeekBarListenner implements SeekBar.OnSeekBarChangeListener{
+    public class SeekBarListenner implements SeekBar.OnSeekBarChangeListener {
 
         private BarChart lBbarChart;
-        private BarChart lBarHChart;
+        private HorizontalBarChart lBarHChart;
         private LineChart lLineChart;
         private PieChart lPieChart;
 
 
-        public SeekBarListenner(BarChart barChart,BarChart barHChart,LineChart lineChart,PieChart pieChart){
+        public SeekBarListenner(BarChart barChart, HorizontalBarChart barHChart, LineChart lineChart, PieChart pieChart) {
             this.lBbarChart = barChart;
             this.lBarHChart = barHChart;
             this.lLineChart = lineChart;
@@ -824,26 +872,32 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
             int progress = progresValue;
             int stepSize = 10;
-            progress = ((int)Math.round(progress/stepSize))*stepSize;
+            progress = ((int) Math.round(progress / stepSize)) * stepSize;
             seekBar.setProgress(progress);
         }
 
         @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {}
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             //textView.setText("Covered: " + progress + "/" + seekBar.getMax());
             // TODO colocar uma chamada ao servico aqui
 
-            if(lBbarChart != null && lBbarChart.getVisibility() == View.VISIBLE) {
-                float valor = calculoBarra(BigDecimal.ZERO,BigDecimal.ZERO,seekBar.getProgress());
-                float valores[] = {0f,valor};
+            if (lBbarChart != null && lBbarChart.getVisibility() == View.VISIBLE) {
+                float valor = calculoBarra(BigDecimal.ZERO, BigDecimal.ZERO, seekBar.getProgress());
+                float valores[] = {0f, valor};
                 updateDataBar(lBbarChart, 1, valores);
             }
+            if (lBarHChart != null && lBarHChart.getVisibility() == View.VISIBLE) {
+                float valor = calculoBarra(BigDecimal.ZERO, BigDecimal.ZERO, seekBar.getProgress());
+                float valores[] = {0f, valor};
+                updateDataBar(lBarHChart, 1, valores);
+            }
 
-            if(lLineChart != null && lLineChart.getVisibility() == View.VISIBLE) {
-                updateDataLine(lLineChart, 1, calculoLinha(BigDecimal.ZERO,BigDecimal.ZERO,seekBar.getProgress()));
+            if (lLineChart != null && lLineChart.getVisibility() == View.VISIBLE) {
+                updateDataLine(lLineChart, 1, calculoLinha(BigDecimal.ZERO, BigDecimal.ZERO, seekBar.getProgress()));
 
             }
         }

@@ -160,12 +160,36 @@ public class Grafico {
         g1.setEixoX(Eixo.populaEixoX(valorMaximoX(lista),json));
         g1.setEixoY(Eixo.populaEixoY(TipoEixo.EIXO_Y_ESQUERDA,valorMinimoY(lista),valorMaximoY(lista),json));
 
-
         return g1;
     }
 
     public static Grafico montaGraficoBarraHorizontal(JSONObject json)throws JSONException{
         Grafico g1 = new Grafico(TipoGrafico.BARRA_HORIZONTAL,"Horizontal");
+
+        g1.setIncluirDescricaoDentroDoGrafico(false);
+        g1.setHabilitarArrastar(false);
+        g1.setHabilitarToque(false);
+        g1.setHabilitarZoom(false);
+        g1.setTipoAnimacao(TipoAnimacao.NORMAL);
+        g1.setLarguraBarra(TipoLarguraBarra.GRANDE.getValor());
+
+        List<ConjutoDado> lista = populaConjuntoDadosBarraHorizontal(json);
+        g1.setEstilo(EstiloDoGrafico.populaEstilo(json));
+        g1.setConjutoDados(lista);
+
+        Descricao desc = g1.getDescricaoGrafico();
+        desc.setAlinhamento(TipoAlinhamento.CENTER);
+        desc.setCor(Color.BLACK);
+        desc.setHabilitar(false);
+        desc.setPosicaoEixoX(10);
+        desc.setPosicaoEixoY(20);
+        desc.setTamanhoFonte(15);
+
+        g1.setDescricaoGrafico(desc);
+
+        g1.setEixoX(Eixo.populaBarraEixoX(valorMaximoX(lista),json));
+        g1.setEixoY(Eixo.populaBarraEixoY(TipoEixo.EIXO_Y_ESQUERDA,valorMinimoY(lista),valorMaximoY(lista),json));
+
         return g1;
     }
 
@@ -205,6 +229,24 @@ public class Grafico {
         conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,0f,1200f));
 
         ConjutoDado conjutoDado2 = new ConjutoDado(true,14,"Descricao 2a",TipoFormatacao.MONETARIO);
+        conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,0f));
+        conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,1400f));
+
+        lista.add(conjutoDado1);
+        lista.add(conjutoDado2);
+
+        return lista;
+    }
+
+    public static List<ConjutoDado> populaConjuntoDadosBarraHorizontal(JSONObject json){
+        List<ConjutoDado> lista = new ArrayList<>();
+
+        ConjutoDado conjutoDado1 = new ConjutoDado(true,14,"Descricao 1h",TipoFormatacao.MONETARIO);
+
+        conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,0f,0f));
+        conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,0f,1200f));
+
+        ConjutoDado conjutoDado2 = new ConjutoDado(true,14,"Descricao 2h",TipoFormatacao.MONETARIO);
         conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,0f));
         conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,1400f));
 
