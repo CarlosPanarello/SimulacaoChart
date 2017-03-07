@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         xAxis.setValueFormatter(formatter);
         xAxis.setDrawLabels(true);
         xAxis.setDrawGridLines(true);
-
+        //xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
 
         xAxis.setTypeface(Typeface.create(Typeface.MONOSPACE,2));
 

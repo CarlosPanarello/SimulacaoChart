@@ -32,6 +32,9 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
@@ -195,9 +198,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             axis.setAxisMinimum(eixo.getValorMinimo());
         }
 
-        if(tipo.equals(TipoGrafico.BARRA_HORIZONTAL)){
-            axis.setPosition(XAxis.XAxisPosition.TOP_INSIDE);
-        }
+
     }
 
     private void initEixo(TipoGrafico tipo,Eixo eixo, YAxis axis) {
@@ -230,9 +231,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         axis.setAxisMaximum(eixo.getValorMaximo());
         axis.setAxisMinimum(eixo.getValorMinimo());
 
-        if(tipo.equals(TipoGrafico.BARRA_HORIZONTAL)){
-            axis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
-        }
+
     }
 
     private LimitLine linhaLimite(LinhaLimite linha) {
@@ -396,6 +395,22 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
         return new LineData(dataSets);
     }
+    public PieData initDataPie(){
+        PieData dados;
+        ArrayList<PieEntry> valueSet1 = new ArrayList<>();
+        PieEntry v1e1 = new PieEntry(40f,"valor40");
+        PieEntry v1e2 = new PieEntry(80f);
+        PieEntry v1e3 = new PieEntry(60f,"valor60");
+        valueSet1.add(v1e1);
+        valueSet1.add(v1e2);
+        valueSet1.add(v1e3);
+
+        PieDataSet item = new PieDataSet(valueSet1,"Conjunto1");
+        item.setColors(Color.RED,Color.BLUE,Color.GREEN);
+        dados = new PieData(item);
+
+        return dados;
+    }
 
     private BarData initDataBar(Grafico grafico) {
         List<ConjutoDado> dados = grafico.getConjutoDados();
@@ -429,11 +444,17 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
             barDataSet.setValueFormatter(new ValueFormatter(hashUltimo, conjutoDado.getTipoFormatacao(), ""));
 
+            //barDataSet.setStackLabels(new String[]{"Testem","outrom" });
+
             dataSets.add(barDataSet);
+
+
         }
 
         BarData data = new BarData(dataSets);
         data.setBarWidth(grafico.getLarguraBarra());
+
+
         // Isso sobrepoe os valores dos DataSet
         //data.setValueTextSize(grafico.getDescricaoGrafico().getTamanhoFonte());
         //data.setValueTextColor(grafico.getDescricaoGrafico().getCor());
@@ -632,6 +653,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         gBarra.animateX(grafico.getTipoAnimacao().getValor());
         gBarra.animateY(grafico.getTipoAnimacao().getValor());
 
+        gBarra.setDrawValueAboveBar(false);
         return gBarra;
     }
 
@@ -639,6 +661,31 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         PieChart pie = new PieChart(this);
         pie.setId(View.generateViewId());
         pie.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
+
+
+        Description description = new Description();
+        description.setEnabled(false);
+
+        pie.setDescription(description);
+
+        //dataset.setColors(ColorTemplate.COLORFUL_COLORS);
+        pie.animateY(5000);
+        pie.setData(initDataPie());
+
+        // enable hole and configure
+        pie.setDrawHoleEnabled(true);
+        pie.setHoleColor(Color.GRAY);
+        pie.setHoleRadius(50);
+        pie.setTransparentCircleRadius(10);
+
+        pie.setHighlightPerTapEnabled(true);
+        //lPieChart.setOnChartValueSelectedListener(O);
+
+        pie.setCenterText("Centro");
+        //lPieChart.setOnClickListener(new OnChartValueSelectedListener());
+
+        //Exibe %
+        pie.setUsePercentValues(true);
         return pie;
     }
 
