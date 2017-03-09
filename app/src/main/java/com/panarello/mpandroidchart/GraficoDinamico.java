@@ -39,6 +39,7 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.panarello.mpandroidchart.dominio.ConjutoDado;
 import com.panarello.mpandroidchart.dominio.Dado;
@@ -395,22 +396,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
         return new LineData(dataSets);
     }
-    public PieData initDataPie(){
-        PieData dados;
-        ArrayList<PieEntry> valueSet1 = new ArrayList<>();
-        PieEntry v1e1 = new PieEntry(40f,"valor40");
-        PieEntry v1e2 = new PieEntry(80f);
-        PieEntry v1e3 = new PieEntry(60f,"valor60");
-        valueSet1.add(v1e1);
-        valueSet1.add(v1e2);
-        valueSet1.add(v1e3);
 
-        PieDataSet item = new PieDataSet(valueSet1,"Conjunto1");
-        item.setColors(Color.RED,Color.BLUE,Color.GREEN);
-        dados = new PieData(item);
-
-        return dados;
-    }
 
     private BarData initDataBar(Grafico grafico) {
         List<ConjutoDado> dados = grafico.getConjutoDados();
@@ -657,11 +643,51 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         return gBarra;
     }
 
+    public PieData initDataPie(){
+        PieData dados;
+        ArrayList<PieEntry> valueSet1 = new ArrayList<>();
+        PieEntry v1e1 = new PieEntry(40f,"valor40");
+        PieEntry v1e2 = new PieEntry(80f,"valor80");
+        PieEntry v1e3 = new PieEntry(60f,"valor60");
+
+        //valueSet1.add(v1e1);
+        ///valueSet1.add(v1e2);
+        //valueSet1.add(v1e3);
+
+        for(int i=1;i<11;i++){
+            valueSet1.add(new PieEntry(10f,"valor " + i));
+        }
+
+        PieDataSet item = new PieDataSet(valueSet1,"");
+
+        //int [] cores = {ColorTemplate.COLORFUL_COLORS,ColorTemplate.COLORFUL_COLORS};
+
+        ArrayList<Integer> cores = new ArrayList<>();
+
+        cores.add(Color.rgb(193, 37, 82));
+        cores.add(Color.rgb(255, 102, 0));
+        cores.add(Color.rgb(245, 199, 0));
+        cores.add(Color.rgb(106, 150, 31));
+        cores.add(Color.rgb(179, 100, 53));
+
+        cores.add(Color.rgb(192, 255, 140));
+        cores.add(Color.rgb(255, 247, 140));
+        cores.add(Color.rgb(255, 208, 140));
+        cores.add(Color.rgb(140, 234, 255));
+        cores.add(Color.rgb(255, 140, 157));
+
+        item.setColors(cores);
+        dados = new PieData(item);
+
+        //dados.enab
+
+        return dados;
+    }
+
     private PieChart criarGraficoPizza(int alt, Grafico gp) {
         PieChart pie = new PieChart(this);
         pie.setId(View.generateViewId());
-        pie.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
-
+        pie.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (alt/2)+alt));
 
         Description description = new Description();
         description.setEnabled(false);
@@ -674,15 +700,19 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
 
         // enable hole and configure
         pie.setDrawHoleEnabled(true);
-        pie.setHoleColor(Color.GRAY);
+        pie.setHoleColor(Color.TRANSPARENT);
         pie.setHoleRadius(50);
-        pie.setTransparentCircleRadius(10);
+        //pie.setTransparentCircleRadius(100);
 
         pie.setHighlightPerTapEnabled(true);
         //lPieChart.setOnChartValueSelectedListener(O);
 
         pie.setCenterText("Centro");
         //lPieChart.setOnClickListener(new OnChartValueSelectedListener());
+        pie.setCenterTextRadiusPercent(40);
+        pie.setDrawEntryLabels(false);
+        //
+        // pie.setScaleX(10);
 
         //Exibe %
         pie.setUsePercentValues(true);
@@ -726,7 +756,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             linearLayout.addView(barVChart);
             linearLayout.addView(lineChart);
             linearLayout.addView(barHChart);
-
+            linearLayout.addView(pieChart);
            /* linearLayout.addView(barHChart);
             linearLayout.addView(lineChart);
             linearLayout.addView(pieChart);
