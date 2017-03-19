@@ -65,7 +65,12 @@
             <Button
                 android:id="@+id/botao"
                 android:text="Grafico Dinamico"
-
+                android:layout_below="@+id/botao2"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+            <Button
+                android:id="@+id/botao2"
+                android:text="Grafico Pizza"
                 android:layout_width="match_parent"
                 android:layout_height="50dp" />
         </RelativeLayout>

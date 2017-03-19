@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -39,20 +41,29 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.panarello.mpandroidchart.convert.Conversor;
 import com.panarello.mpandroidchart.dominio.ConjutoDado;
 import com.panarello.mpandroidchart.dominio.Dado;
 import com.panarello.mpandroidchart.dominio.Eixo;
 import com.panarello.mpandroidchart.dominio.Grafico;
 import com.panarello.mpandroidchart.dominio.LinhaLimite;
+import com.panarello.mpandroidchart.dominio.Parametros;
 import com.panarello.mpandroidchart.dominio.TipoEixo;
 import com.panarello.mpandroidchart.dominio.TipoFormatacao;
 import com.panarello.mpandroidchart.dominio.TipoGrafico;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -62,19 +73,22 @@ import java.util.Set;
 
 public class GraficoDinamico extends Activity implements CompoundButton.OnCheckedChangeListener {
     private final String TAG = "GRF-DYM";
+    private final String TAG2 = "JSON";
 
     private HorizontalBarChart barHChart;
     private BarChart barVChart;
     private PieChart pieChart;
     private LineChart lineChart;
     private SeekBar seekBar;
+    private RadioGroup radio;
 
     private View gerarRadioButtonOpcao(int alt, List<Grafico> listaGraficos) {
+
         RadioGroup radioGroup = new RadioGroup(this);
         radioGroup.setId(View.generateViewId());
         radioGroup.setOrientation(LinearLayout.HORIZONTAL);
         radioGroup.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
-
+        //radioGroup.setBackgroundColor(Color.RED);
         for (Grafico g : listaGraficos) {
             RadioButton rButton = new RadioButton(this);
             rButton.setId(View.generateViewId());
@@ -93,9 +107,11 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
     private View opcoesGrafico(int alt, List<Grafico> listaGraficos) {
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setId(View.generateViewId());
-        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
+        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        radio = (RadioGroup) gerarRadioButtonOpcao(alt, listaGraficos);
         linearLayout.addView(gerarRadioButtonOpcao(alt, listaGraficos));
+        //linearLayout.setBackgroundColor(Color.YELLOW);
         return linearLayout;
     }
 
@@ -495,8 +511,11 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         }
     }
 
-    private BarChart criarGraficoBarraVertical(int alt, Grafico grafico) {
-        BarChart gBarra = new BarChart(this);
+    private BarChart criarGraficoBarraVertical(BarChart gBarra, int alt, Grafico grafico) {
+        if(gBarra == null){
+            gBarra = new BarChart(this);
+        }
+
         gBarra.setId(View.generateViewId());
         gBarra.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alt));
 
@@ -643,45 +662,28 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         return gBarra;
     }
 
-    public PieData initDataPie(){
-        PieData dados;
-        ArrayList<PieEntry> valueSet1 = new ArrayList<>();
-        PieEntry v1e1 = new PieEntry(40f,"valor40");
-        PieEntry v1e2 = new PieEntry(80f,"valor80");
-        PieEntry v1e3 = new PieEntry(60f,"valor60");
+    public PieData initDataPie(Grafico gp){
+        PieData pieDados;
+        ArrayList<PieEntry> entries = new ArrayList<>();
 
-        //valueSet1.add(v1e1);
-        ///valueSet1.add(v1e2);
-        //valueSet1.add(v1e3);
-
-        for(int i=1;i<11;i++){
-            valueSet1.add(new PieEntry(10f,"valor " + i));
+        List<Integer> cores = new ArrayList<>();
+        for(ConjutoDado conjDado:gp.getConjutoDados()){
+            for(Dado dado:conjDado.getListaValores()){
+                entries.add(new PieEntry(dado.getValorX(),dado.getDescricaoValor()));
+                cores.add(dado.getCorItem());
+            }
         }
 
-        PieDataSet item = new PieDataSet(valueSet1,"");
-
-        //int [] cores = {ColorTemplate.COLORFUL_COLORS,ColorTemplate.COLORFUL_COLORS};
-
-        ArrayList<Integer> cores = new ArrayList<>();
-
-        cores.add(Color.rgb(193, 37, 82));
-        cores.add(Color.rgb(255, 102, 0));
-        cores.add(Color.rgb(245, 199, 0));
-        cores.add(Color.rgb(106, 150, 31));
-        cores.add(Color.rgb(179, 100, 53));
-
-        cores.add(Color.rgb(192, 255, 140));
-        cores.add(Color.rgb(255, 247, 140));
-        cores.add(Color.rgb(255, 208, 140));
-        cores.add(Color.rgb(140, 234, 255));
-        cores.add(Color.rgb(255, 140, 157));
+        PieDataSet item = new PieDataSet(entries,"");
 
         item.setColors(cores);
-        dados = new PieData(item);
 
-        //dados.enab
+        item.setSelectionShift(gp.getTamanhoDestaquePorcaoSelecionadaPizza());
 
-        return dados;
+        pieDados = new PieData();
+        pieDados.setDataSet(item);
+
+        return pieDados;
     }
 
     private PieChart criarGraficoPizza(int alt, Grafico gp) {
@@ -689,34 +691,121 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         pie.setId(View.generateViewId());
         pie.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (alt/2)+alt));
 
-        Description description = new Description();
-        description.setEnabled(false);
-
-        pie.setDescription(description);
+        pie.setDescription(initDescricao(gp));
 
         //dataset.setColors(ColorTemplate.COLORFUL_COLORS);
-        pie.animateY(5000);
-        pie.setData(initDataPie());
+        pie.animateY(gp.getTipoAnimacao().getValor());
+        pie.setData(initDataPie(gp));
 
         // enable hole and configure
-        pie.setDrawHoleEnabled(true);
-        pie.setHoleColor(Color.TRANSPARENT);
-        pie.setHoleRadius(50);
+        pie.setDrawHoleEnabled(gp.isHabilitarBuracoCentroPizza());
+        pie.setHoleColor(gp.getCorCentroPizza());
+        pie.setHoleRadius(gp.getPorcentagemRaioCentroPizza());
         //pie.setTransparentCircleRadius(100);
 
-        pie.setHighlightPerTapEnabled(true);
+        pie.setHighlightPerTapEnabled(gp.isHabilitarDestaqueAoToquePizza());
+        //pie.setMaxHighlightDistance(100);
+
+        //pie.setPadding
         //lPieChart.setOnChartValueSelectedListener(O);
 
-        pie.setCenterText("Centro");
-        //lPieChart.setOnClickListener(new OnChartValueSelectedListener());
-        pie.setCenterTextRadiusPercent(40);
-        pie.setDrawEntryLabels(false);
-        //
-        // pie.setScaleX(10);
+        pie.setCenterText(gp.getTextoCentroPizza().getTexto());
+        pie.setCenterTextColor(gp.getTextoCentroPizza().getCor());
+        pie.setCenterTextSize(gp.getTextoCentroPizza().getTamanhoFonte());
+        pie.setDrawCenterText(gp.getTextoCentroPizza().isHabilitar());
+        pie.setCenterTextOffset(gp.getTextoCentroPizza().getPosicaoEixoX(),gp.getTextoCentroPizza().getPosicaoEixoY());
+        //pie.setCenterTextTypeface();
+        //pie.setCenterTextRadiusPercent();
 
+        //lPieChart.setOnClickListener(new OnChartValueSelectedListener());
+        //pie.setCenterTextRadiusPercent(40);
+        pie.setDrawEntryLabels(gp.getConjutoDados().get(0).isExibirValores());
+        //
+        pie.setRotationEnabled(gp.isHabilitarGirarAoToque());
+        // pie.setScaleX(10);
+        pie.setBackgroundColor(gp.getEstilo().getCorDeFundo());
         //Exibe %
-        pie.setUsePercentValues(true);
+        pie.setUsePercentValues(gp.isHabilitarValoresPorPorcentagemPizza());
         return pie;
+    }
+
+    private void testeJson(){
+        try {
+
+            final Gson gson = new Gson();
+// original object instantiation
+            Grafico modeloBarraHorizontal = Conversor.montaGraficoBarraHorizontal(null);
+            Grafico modeloBarraVertical = Conversor.montaGraficoBarraVertical(null);
+            Grafico modeloLinha = Conversor.montaGraficoLinha(null);
+            Grafico modeloPizza = Conversor.montaGraficoPizza(null);
+
+            //Object to Json
+            String jsonBH = gson.toJson(modeloBarraHorizontal);
+            //Log.d(TAG2,"Converted jsonBH string is : " + jsonBH);
+            //Object to Json
+            String jsonBV = gson.toJson(modeloBarraVertical);
+            //Log.d(TAG2,"Converted jsonBV string is : " + jsonBV);
+
+            //Object to Json
+            String jsonL = gson.toJson(modeloLinha);
+            System.out.println("Converted Java object : " + jsonL);
+            //Log.d(TAG2,"Converted jsonL string is : " + jsonL);
+
+            //Object to Json
+            String jsonP = gson.toJson(modeloPizza);
+            //Log.d(TAG2,"Converted jsonP string is : " + jsonP);
+
+            //Json to Object
+            //ModelObject modelObject1 = gson.fromJson(json, ModelObject.class);
+            //System.out.println("Converted Java object : " + modelObject1);
+        } catch (Exception e ){
+            e.printStackTrace();
+        }
+    }
+
+    private void montarGrafico(){
+        Log.d(TAG2,"montarGrafico");
+
+
+
+
+    }
+    private void atualizarGrafico(){}
+
+    public static JSONObject getJSONObjectFromURL(String urlString) throws IOException, JSONException {
+
+        HttpURLConnection urlConnection = null;
+
+        URL url = new URL(urlString);
+
+        urlConnection = (HttpURLConnection) url.openConnection();
+
+        urlConnection.setRequestMethod("GET");
+        urlConnection.setReadTimeout(10000 /* milliseconds */);
+        urlConnection.setConnectTimeout(15000 /* milliseconds */);
+
+        urlConnection.setDoOutput(true);
+
+        urlConnection.connect();
+
+        BufferedReader br=new BufferedReader(new InputStreamReader(url.openStream()));
+
+        char[] buffer = new char[1024];
+
+        String jsonString = new String();
+
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            sb.append(line+"\n");
+        }
+        br.close();
+
+        jsonString = sb.toString();
+
+        System.out.println("JSON: " + jsonString);
+
+        return new JSONObject(jsonString);
     }
 
     @Override
@@ -724,18 +813,23 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grafico_dinamico);
 
+        Parametros p = new Parametros(TipoGrafico.BARRA_HORIZONTAL,false);
+        new ConexaoObterGrafico().execute(p);
+
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.activity_grafico_dinamico);
+
+        testeJson();
 
         int alt = alturaTela() / 3;
         int altSlider = alturaTela() / 10;
         List<Grafico> lista = new ArrayList<>();
         try {
-            Grafico gbv = Grafico.montaGraficoBarraVertical(new JSONObject());
-            Grafico gbh = Grafico.montaGraficoBarraHorizontal(new JSONObject());
-            Grafico gl = Grafico.montaGraficoLinha(new JSONObject());
-            Grafico gp = Grafico.montaGraficoPizza(new JSONObject());
+            Grafico gbv = Conversor.montaGraficoBarraVertical(new JSONObject());
+            Grafico gbh = Conversor.montaGraficoBarraHorizontal(new JSONObject());
+            Grafico gl = Conversor.montaGraficoLinha(new JSONObject());
+            Grafico gp = Conversor.montaGraficoPizza(new JSONObject());
 
-            barVChart = criarGraficoBarraVertical(alt, gbv);
+            barVChart = criarGraficoBarraVertical(null,alt, gbv);
             barHChart = criarGraficoBarraHorizontal(alt, gbh);
             lineChart = criarGraficoLinha(alt, gl);
             pieChart = criarGraficoPizza(alt, gp);
@@ -765,7 +859,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             //linearLayout.addView(criarGraficoBarraVertical(lista.get(0)));
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -979,4 +1073,72 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
             }
         }
     }
+
+    public class ConexaoObterGrafico extends AsyncTask<Parametros, Void, Grafico> {
+        @Override
+        protected  Grafico doInBackground(Parametros... params) {
+            try {
+                final String url = params[0].urlRequisicao();
+                // colocar a requisao HTTP aqui e a transf em json em obj
+                Grafico g = new Grafico(TipoGrafico.BARRA_HORIZONTAL,"teste");
+
+                JSONObject json = null;
+                try {
+                    json = getJSONObjectFromURL(url);
+
+                    if(json != null){
+
+                        Gson gson=new GsonBuilder().create();
+
+                        g = gson.fromJson(json.toString(),Grafico.class);
+                        Log.d(TAG2,"Texto Desc-->"+g.getDescricaoGrafico().getTexto());
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return g;
+            } catch (Exception e) {
+                Log.e("MainActivity", e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Grafico grafico) {
+            if(grafico != null ) {
+                int alt = alturaTela() / 2;
+                barVChart = criarGraficoBarraVertical(barVChart,alt,grafico);
+                barVChart.setVisibility(View.VISIBLE);
+
+                barVChart.getData().notifyDataChanged();
+                barVChart.notifyDataSetChanged();
+            }
+        }
+    }
+
+    public class ConexaoCalculoGrafico extends AsyncTask<Parametros, Void, List<ConjutoDado>> {
+        @Override
+        protected  List<ConjutoDado> doInBackground(Parametros... params) {
+            try {
+                final String url = params[0].urlRequisicao();
+                // colocar a requisao HTTP aqui e a transf em json em obj
+                return new ArrayList<>();
+            } catch (Exception e) {
+                Log.e("MainActivity", e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<ConjutoDado> dados) {
+            if(dados != null ) {
+                atualizarGrafico();
+            }
+        }
+    }
+
 }

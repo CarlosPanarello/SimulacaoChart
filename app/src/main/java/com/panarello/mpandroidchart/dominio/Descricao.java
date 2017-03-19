@@ -15,8 +15,8 @@ public class Descricao {
     private TipoAlinhamento alinhamento;
     private boolean habilitar;
     private String texto;
-    private float posicaoEixoX;
-    private float posicaoEixoY;
+    private float posicaoEixoX = 0 ;
+    private float posicaoEixoY = 0;
 
     public Descricao(String texto) {
         this.texto = texto;
@@ -79,7 +79,7 @@ public class Descricao {
     }
 
     public static  Descricao populaDescricao(JSONObject json){
-        Descricao desc = new Descricao("Vertical");
+        Descricao desc = new Descricao("Vertical-Local");
         desc.setAlinhamento(TipoAlinhamento.CENTER);
         desc.setCor(Color.BLACK);
         desc.setHabilitar(false);

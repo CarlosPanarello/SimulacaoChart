@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     private PieChart lPieChart;
     private LineChart lLineChart;
     private Button botao;
+    private Button botao2;
+
     private SeekBar seekBar;
     //BarDataSet dadosBarra;
     //private static final int REQUEST_CODE = 999;
@@ -175,7 +177,15 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
             }
         });
 
-
+        botao2 = (Button) findViewById(R.id.botao2);
+        botao2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this,InputPieChart.class);
+                //i.putExtra("Chave",valor);
+                startActivity(i);
+            }
+        });
 
         lBarChart = (BarChart) findViewById(R.id.barChartLayout);
         lBarChart.getLayoutParams().height =600;
@@ -576,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
             // write your logic here
             Log.d("ChartPana",""+entry.getX()+  " - " + ultimo + " iguais - " +  (ultimo != entry.getX()));
-            if(ultimo>0f && ultimo != entry.getX()){
+            if(ultimo > 0f && ultimo != entry.getX()){
                 return "";
             }
 

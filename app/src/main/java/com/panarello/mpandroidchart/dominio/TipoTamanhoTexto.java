@@ -8,7 +8,7 @@ public enum TipoTamanhoTexto {
     MUITO_PEQUENO(7),PEQUENO(10),NORMAL(14),GRANDE(20),MUITO_GRANDE(30);
     private float valor;
 
-    private TipoTamanhoTexto(float valor){
+    TipoTamanhoTexto(float valor){
         this.valor = valor;
     }
 

@@ -2,6 +2,8 @@ package com.panarello.mpandroidchart.dominio;
 
 import android.graphics.Color;
 
+import com.github.mikephil.charting.utils.ColorTemplate;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,6 +33,24 @@ public class Grafico {
     private TipoAnimacao tipoAnimacao;
     private float larguraBarra;
 
+    private boolean habilitarBuracoCentroPizza = false;
+    private boolean habilitarGirarAoToque = false;
+    private boolean habilitarDestaqueAoToquePizza = true;
+    private boolean habilitarValoresPorPorcentagemPizza = false;
+    private int corCentroPizza = Color.TRANSPARENT;
+    private float tamanhoDestaquePorcaoSelecionadaPizza = 18f;
+    private float porcentagemRaioCentroPizza = 50;
+    private float porcentagemTransparenciaCentroPizza = 55;
+    private Descricao textoCentroPizza;
+
+    public boolean isHabilitarGirarAoToque() {
+        return habilitarGirarAoToque;
+    }
+
+    public void setHabilitarGirarAoToque(boolean habilitarGirarAoToque) {
+        this.habilitarGirarAoToque = habilitarGirarAoToque;
+    }
+
     public float getLarguraBarra() {
         return larguraBarra;
     }
@@ -39,6 +59,13 @@ public class Grafico {
         this.larguraBarra = larguraBarra;
     }
 
+    public Descricao getTextoCentroPizza() {
+        return textoCentroPizza;
+    }
+
+    public void setTextoCentroPizza(Descricao textoCentroPizza) {
+        this.textoCentroPizza = textoCentroPizza;
+    }
 
     public Grafico(TipoGrafico tipo, String descricao) {
         this.tipo = tipo;
@@ -134,198 +161,60 @@ public class Grafico {
         this.conjutoDados = conjutoDados;
     }
 
-    public static Grafico montaGraficoLinha(JSONObject json)throws JSONException{
-        Grafico g1 = new Grafico(TipoGrafico.LINHA,"Linha");
-
-        g1.setIncluirDescricaoDentroDoGrafico(false);
-        g1.setHabilitarArrastar(false);
-        g1.setHabilitarToque(false);
-        g1.setHabilitarZoom(false);
-        g1.setTipoAnimacao(TipoAnimacao.NORMAL);
-        g1.setLarguraBarra(TipoLarguraBarra.GRANDE.getValor());
-
-        List<ConjutoDado> lista = populaConjuntoDadosLinha(json);
-        g1.setEstilo(EstiloDoGrafico.populaEstilo(json));
-        g1.setConjutoDados(lista);
-
-        Descricao desc = g1.getDescricaoGrafico();
-        desc.setAlinhamento(TipoAlinhamento.CENTER);
-        desc.setCor(Color.BLACK);
-        desc.setHabilitar(false);
-        desc.setPosicaoEixoX(10);
-        desc.setPosicaoEixoY(20);
-        desc.setTamanhoFonte(15);
-
-        g1.setDescricaoGrafico(desc);
-        g1.setEixoX(Eixo.populaEixoX(valorMaximoX(lista),json));
-        g1.setEixoY(Eixo.populaEixoY(TipoEixo.EIXO_Y_ESQUERDA,valorMinimoY(lista),valorMaximoY(lista),json));
-
-        return g1;
+    public boolean isHabilitarBuracoCentroPizza() {
+        return habilitarBuracoCentroPizza;
     }
 
-    public static Grafico montaGraficoBarraHorizontal(JSONObject json)throws JSONException{
-        Grafico g1 = new Grafico(TipoGrafico.BARRA_HORIZONTAL,"Horizontal");
-
-        g1.setIncluirDescricaoDentroDoGrafico(false);
-        g1.setHabilitarArrastar(false);
-        g1.setHabilitarToque(false);
-        g1.setHabilitarZoom(false);
-        g1.setTipoAnimacao(TipoAnimacao.NORMAL);
-        g1.setLarguraBarra(TipoLarguraBarra.GRANDE.getValor());
-
-        List<ConjutoDado> lista = populaConjuntoDadosBarraHorizontal(json);
-        g1.setEstilo(EstiloDoGrafico.populaEstilo(json));
-        g1.setConjutoDados(lista);
-
-        Descricao desc = g1.getDescricaoGrafico();
-        desc.setAlinhamento(TipoAlinhamento.CENTER);
-        desc.setCor(Color.BLACK);
-        desc.setHabilitar(false);
-        desc.setPosicaoEixoX(10);
-        desc.setPosicaoEixoY(20);
-        desc.setTamanhoFonte(15);
-
-        g1.setDescricaoGrafico(desc);
-
-        g1.setEixoX(Eixo.populaBarraEixoX(valorMaximoX(lista),json));
-        g1.setEixoY(Eixo.populaBarraEixoY(TipoEixo.EIXO_Y_ESQUERDA,valorMinimoY(lista),valorMaximoY(lista),json));
-
-        return g1;
+    public void setHabilitarBuracoCentroPizza(boolean habilitarBuracoCentroPizza) {
+        this.habilitarBuracoCentroPizza = habilitarBuracoCentroPizza;
     }
 
-    public static Grafico montaGraficoPizza(JSONObject json)throws JSONException{
-        Grafico g1 = new Grafico(TipoGrafico.PIZZA,"Pizza");
-        return g1;
+    public int getCorCentroPizza() {
+        return corCentroPizza;
     }
 
-    public static Grafico montaGraficoBarraVertical(JSONObject json)throws JSONException{
-
-        Grafico g1 = new Grafico(TipoGrafico.BARRA_VERTICAL,"Vertical");
-
-        g1.setIncluirDescricaoDentroDoGrafico(false);
-        g1.setHabilitarArrastar(false);
-        g1.setHabilitarToque(false);
-        g1.setHabilitarZoom(false);
-        g1.setTipoAnimacao(TipoAnimacao.NORMAL);
-        g1.setLarguraBarra(TipoLarguraBarra.GRANDE.getValor());
-        g1.setTipo(TipoGrafico.BARRA_VERTICAL);
-
-        List<ConjutoDado> lista = populaConjuntoDadosBarraVertical(json);
-        g1.setEstilo(EstiloDoGrafico.populaEstilo(json));
-        g1.setConjutoDados(lista);
-        g1.setDescricaoGrafico(Descricao.populaDescricao(json));
-        g1.setEixoX(Eixo.populaBarraEixoX(valorMaximoX(lista),json));
-        g1.setEixoY(Eixo.populaBarraEixoY(TipoEixo.EIXO_Y_ESQUERDA,valorMinimoY(lista),valorMaximoY(lista),json));
-
-        return g1;
+    public void setCorCentroPizza(int corCentroPizza) {
+        this.corCentroPizza = corCentroPizza;
     }
 
-    public static List<ConjutoDado> populaConjuntoDadosBarraVertical(JSONObject json){
-        List<ConjutoDado> lista = new ArrayList<>();
-
-        ConjutoDado conjutoDado1 = new ConjutoDado(true,14,"Descricao 1a",TipoFormatacao.MONETARIO);
-
-        conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,0f,0f));
-        conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,0f,1200f));
-
-        ConjutoDado conjutoDado2 = new ConjutoDado(true,14,"Descricao 2a",TipoFormatacao.MONETARIO);
-        conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,0f));
-        conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,1400f));
-
-        lista.add(conjutoDado1);
-        lista.add(conjutoDado2);
-
-        return lista;
+    public float getPorcentagemRaioCentroPizza() {
+        return porcentagemRaioCentroPizza;
     }
 
-    public static List<ConjutoDado> populaConjuntoDadosBarraHorizontal(JSONObject json){
-        List<ConjutoDado> lista = new ArrayList<>();
-
-        ConjutoDado conjutoDado1 = new ConjutoDado(true,14,"Descricao 1h",TipoFormatacao.MONETARIO);
-
-        conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,0f,0f));
-        conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,0f,1200f));
-
-        ConjutoDado conjutoDado2 = new ConjutoDado(true,14,"Descricao 2h",TipoFormatacao.MONETARIO);
-        conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,0f));
-        conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,1400f));
-
-        lista.add(conjutoDado1);
-        lista.add(conjutoDado2);
-
-        return lista;
+    public void setPorcentagemRaioCentroPizza(float porcentagemRaioCentroPizza) {
+        this.porcentagemRaioCentroPizza = porcentagemRaioCentroPizza;
     }
 
-    public static List<ConjutoDado> populaConjuntoDadosLinha(JSONObject json){
-        List<ConjutoDado> lista = new ArrayList<>();
-
-        ConjutoDado conjutoDado1 = new ConjutoDado(true,14,"Descricao 1a",TipoFormatacao.MONETARIO);
-        ConjutoDado conjutoDado2 = new ConjutoDado(true,14,"Descricao 2a",TipoFormatacao.MONETARIO);
-
-        conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,1f,1.00f));
-        conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,1f,1.00f));
-
-        float p1 =2.05f;
-        float p2 =2.00f;
-        for(int i = 2 ; i<11 ;i++){
-            conjutoDado1.getListaValores().add(new Dado(conjutoDado1.hashCode(),Color.BLACK,Color.RED,i,p1));
-            conjutoDado2.getListaValores().add(new Dado(conjutoDado2.hashCode(),Color.BLACK,Color.BLUE,i,p2));
-
-            p1 = p1*2;
-            p2 += p2 + 0.5f;
-        }
-
-        lista.add(conjutoDado1);
-        lista.add(conjutoDado2);
-
-        return lista;
+    public float getPorcentagemTransparenciaCentroPizza() {
+        return porcentagemTransparenciaCentroPizza;
     }
 
-    private static  float valorMaximoX(List<ConjutoDado> dados){
-        float max = Float.MIN_VALUE;
-        if(dados == null){
-            return  0;
-        }
-        for(ConjutoDado conjDado : dados){
-            for(Dado dado :conjDado.getListaValores()){
-                if(dado.getValorX()>max){
-                    max = dado.getValorX();
-                }
-            }
-        }
-
-        return max+2;
+    public void setPorcentagemTransparenciaCentroPizza(float porcentagemTransparenciaCentroPizza) {
+        this.porcentagemTransparenciaCentroPizza = porcentagemTransparenciaCentroPizza;
     }
 
-    private static float valorMaximoY(List<ConjutoDado> dados){
-        float max = Float.MIN_VALUE;
-        if(dados == null){
-            return  0;
-        }
-        for(ConjutoDado conjDado : dados){
-            for(Dado dado :conjDado.getListaValores()){
-                if(dado.getValorY()>max){
-                    max = dado.getValorY();
-                }
-            }
-        }
-
-        return max + max*0.2f;
+    public boolean isHabilitarDestaqueAoToquePizza() {
+        return habilitarDestaqueAoToquePizza;
     }
 
-    private static float valorMinimoY(List<ConjutoDado> dados){
-        float min = Float.MAX_VALUE;
-        if(dados == null){
-            return  0;
-        }
-        for(ConjutoDado conjDado : dados){
-            for(Dado dado :conjDado.getListaValores()){
-                if(dado.getValorY() < min){
-                    min = dado.getValorY();
-                }
-            }
-        }
-
-        return min;
+    public void setHabilitarDestaqueAoToquePizza(boolean habilitarDestaqueAoToquePizza) {
+        this.habilitarDestaqueAoToquePizza = habilitarDestaqueAoToquePizza;
     }
+
+    public boolean isHabilitarValoresPorPorcentagemPizza() {
+        return habilitarValoresPorPorcentagemPizza;
+    }
+
+    public void setHabilitarValoresPorPorcentagemPizza(boolean habilitarValoresPorPorcentagemPizza) {
+        this.habilitarValoresPorPorcentagemPizza = habilitarValoresPorPorcentagemPizza;
+    }
+
+    public float getTamanhoDestaquePorcaoSelecionadaPizza() {
+        return tamanhoDestaquePorcaoSelecionadaPizza;
+    }
+
+    public void setTamanhoDestaquePorcaoSelecionadaPizza(float tamanhoDestaquePorcaoSelecionadaPizza) {
+        this.tamanhoDestaquePorcaoSelecionadaPizza = tamanhoDestaquePorcaoSelecionadaPizza;
+    }
+
 }
