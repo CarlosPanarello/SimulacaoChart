@@ -1,17 +1,11 @@
 package com.panarello.mpandroidchart;
 
-import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -36,26 +30,21 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.interfaces.datasets.IPieDataSet;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 
-public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class GraficoFixoActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     //protected BarChart mChart;
     private BarChart lBarChart;
     private PieChart lPieChart;
     private LineChart lLineChart;
-    private Button botao;
-    private Button botao2;
+
 
     private SeekBar seekBar;
     //BarDataSet dadosBarra;
@@ -165,27 +154,8 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_grafico_fixo);
         slider();
-        botao = (Button) findViewById(R.id.botao);
-        botao.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this,GraficoDinamico.class);
-                //i.putExtra("Chave",valor);
-                startActivity(i);
-            }
-        });
-
-        botao2 = (Button) findViewById(R.id.botao2);
-        botao2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this,InputPieChart.class);
-                //i.putExtra("Chave",valor);
-                startActivity(i);
-            }
-        });
 
         lBarChart = (BarChart) findViewById(R.id.barChartLayout);
         lBarChart.getLayoutParams().height =600;

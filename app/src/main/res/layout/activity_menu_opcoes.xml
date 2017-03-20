@@ -1,0 +1,38 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.panarello.mpandroidchart.MenuOpcoes">
+
+    <Button
+        android:text="Fixos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="irGraficoFixo"
+        />
+    <Button
+        android:text="Dinamicos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="irGraficoDinamico"/>
+    <Button
+        android:text="Dinamicos Rest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="irGraficoDinamicoRest"/>
+
+    <Button
+        android:text="Pizza Spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="irGraficoPizzaInputSpinner"/>
+
+    <Button
+        android:text="Pizza Edit Text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="irGraficoPizzaEditText"/>
+
+</LinearLayout>
+

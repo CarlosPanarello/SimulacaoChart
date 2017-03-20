@@ -5,5 +5,7 @@ package com.panarello.mpandroidchart.dominio;
  */
 
 public enum TipoPosicaoDescricao {
-    LEFT_TOP, LEFT_BOTTOM, RIGHT_TOP, RIGHT_BOTTOM
+    LEFT_TOP, LEFT_BOTTOM,LEFT_CENTER,
+    CENTER_TOP, CENTER_BOTTOM,CENTER_CENTER,
+    RIGHT_TOP, RIGHT_BOTTOM, RIGHT_CENTER
 }

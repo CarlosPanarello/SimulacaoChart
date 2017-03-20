@@ -10,14 +10,13 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
 
-    tools:context="com.panarello.mpandroidchart.MainActivity">
+    tools:context="com.panarello.mpandroidchart.GraficoFixoActivity">
 
     <ScrollView android:layout_width="match_parent" android:layout_height="match_parent">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <TextView
-                android:layout_below="@+id/botao"
                 android:id="@+id/text1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -62,17 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_below="@+id/text3" />
-            <Button
-                android:id="@+id/botao"
-                android:text="Grafico Dinamico"
-                android:layout_below="@+id/botao2"
-                android:layout_width="match_parent"
-                android:layout_height="50dp" />
-            <Button
-                android:id="@+id/botao2"
-                android:text="Grafico Pizza"
-                android:layout_width="match_parent"
-                android:layout_height="50dp" />
+
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

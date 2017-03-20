@@ -560,6 +560,7 @@ public class GraficoDinamico extends Activity implements CompoundButton.OnChecke
         gBarra.animateX(grafico.getTipoAnimacao().getValor());
         gBarra.animateY(grafico.getTipoAnimacao().getValor());
 
+        gBarra.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         return gBarra;
     }
 

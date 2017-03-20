@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/activity_main"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:paddingBottom="@dimen/activity_vertical_margin"
+android:paddingLeft="@dimen/activity_horizontal_margin"
+android:paddingRight="@dimen/activity_horizontal_margin"
+android:paddingTop="@dimen/activity_vertical_margin"
+tools:context="com.panarello.mpandroidchart.GraficoPizzaText">
+
+<ScrollView android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:layout_editor_absoluteY="8dp"
+    tools:layout_editor_absoluteX="8dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieFundosText"
+            android:layout_width="match_parent"
+            android:layout_height="600dp"/>
+
+        <LinearLayout
+            android:id="@+id/linearInput"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_below="@+id/pieFundosText"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_weight="1"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/pieFundos"
+                android:text="Valor da Contribuição:"/>
+            <EditText
+                android:id="@+id/editTextValorText"
+                android:layout_weight="2"
+                android:textAlignment="textEnd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:textSize="16dp"
+                android:inputType="numberDecimal" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/linearSpinner"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:textSize="16dp"
+            android:layout_below="@+id/linearInput"
+            android:layout_height="wrap_content">
+            <ImageButton
+                android:textAlignment="center"
+                android:layout_weight="1"
+                android:id="@+id/removerItemSpiner"
+                android:background="#00000000"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tint="@color/colorPrimary"
+                android:src="@android:drawable/ic_delete"/>
+            <LinearLayout
+                android:layout_weight="3"
+                android:id="@+id/linearInterno"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <Spinner
+                    android:layout_weight="1"
+                    android:id="@+id/spinnerFundosText"
+                    android:textSize="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+                <Spinner
+                    android:layout_weight="2"
+                    android:id="@+id/spinnerPorcentagemText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <ImageButton
+                android:textAlignment="center"
+                android:id="@+id/adicionarItemSpinner"
+                android:layout_weight="1"
+                android:background="#00000000"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tint="@color/colorPrimary"
+                android:src="@android:drawable/ic_input_add"/>
+        </LinearLayout>
+    </RelativeLayout>
+</ScrollView>
+</RelativeLayout>

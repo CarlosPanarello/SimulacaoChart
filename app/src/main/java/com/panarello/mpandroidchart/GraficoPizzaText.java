@@ -37,21 +37,78 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InputPieChart extends AppCompatActivity implements AdapterView.OnItemSelectedListener,OnChartValueSelectedListener {
-    private final String TAG = "GRF-PIE";
+public class GraficoPizzaText extends AppCompatActivity  implements OnChartValueSelectedListener {
+
+    private final String TAG = "GRF-PIE-T";
+
     PieChart lPieChart;
     Spinner lSpinnerFundos;
-    EditText lEditTextValorFundos;
+    Spinner lSpinnerPorcentagem;
     List<Fundos> listaFundos;
-
     int tempoAnimacao = 2500;
+    List<String>  listaPorcentagem;
 
-    Button botaoInserir;
-    Fundos fundoSelecionado;
-    TextView textValor;
+
 
     ImageButton btnAdicionar;
     ImageButton btnRemover;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_grafico_pizza_text);
+
+        inicializarListaFundos();
+        atualizarListaPorcentagem();
+        inicializarSpinner();
+        inicializarPizza(listaFundos);
+
+        btnAdicionar = (ImageButton) findViewById(R.id.adicionarItemSpinner);
+        btnAdicionar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adicionarItemPie();
+            }
+        });
+        btnRemover = (ImageButton) findViewById(R.id.removerItemSpiner);
+        btnRemover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removerItemPie();
+            }
+        });
+    }
+
+    @Override
+    public void onValueSelected(Entry e, Highlight h) {
+        if(e.getData()!= null && e.getData() instanceof Fundos){
+            Fundos f = (Fundos) e.getData();
+            lPieChart.setCenterText(textoCentral(f.getDescricao(),BigDecimal.ZERO,BigDecimal.ZERO));
+            lPieChart.setCenterTextColor(Color.BLACK);
+            lPieChart.setCenterTextSize(16f);
+
+            setSpinnerFundos(f);
+            selecionarPorcentagemSpinner(f.getValor());
+        }
+    }
+
+    @Override
+    public void onNothingSelected() {
+
+    }
+
+    private void adicionarItemPie(){
+        if(!ultrapassou100()) {
+            atualizarListaPorcentagem();
+            atualizarListaSpinnerPorcentagem();
+        } else {
+            Toast.makeText(this,"Não é possivel adicionar mais fundos",Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void removerItemPie(){
+
+    }
 
     public PieData atualizarDadosPizza(List<Fundos> lista){
         PieData pieDados;
@@ -81,7 +138,7 @@ public class InputPieChart extends AppCompatActivity implements AdapterView.OnIt
     }
 
     private void inicializarPizza(List<Fundos> listaInicial){
-        lPieChart = (PieChart) findViewById(R.id.pieFundos);
+        lPieChart = (PieChart) findViewById(R.id.pieFundosText);
         //lPieChart.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, alturaTela()/3));
         lPieChart.getLayoutParams().height = alturaTela()/3;
         Description desc = new Description();
@@ -141,35 +198,23 @@ public class InputPieChart extends AppCompatActivity implements AdapterView.OnIt
         lPieChart.setExtraRightOffset(0f);
     }
 
-    private void inicializarSpinner(){
-        lSpinnerFundos = (Spinner) findViewById(R.id.spinnerFundos);
-
-        ArrayAdapter<Fundos> dataAdapter = new ArrayAdapter<Fundos>(this,
-                android.R.layout.simple_spinner_item, listaFundos);
-
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        lSpinnerFundos.setAdapter(dataAdapter);
-        lSpinnerFundos.setOnItemSelectedListener(this);
-    }
 
     private void inicializarListaFundos(){
         listaFundos = new ArrayList<>();
         boolean selecionado = true;
-        listaFundos.add(new Fundos(0,"Selecione ...",BigDecimal.ZERO,false,Color.TRANSPARENT));
-        listaFundos.add(new Fundos(1,"Fundo FIX V",new BigDecimal(50.00),selecionado,Color.rgb(254, 149, 7)));
-        listaFundos.add(new Fundos(2,"Fundo FIX VI",new BigDecimal(500.00),selecionado,Color.rgb(106, 167, 134)));
-        listaFundos.add(new Fundos(3,"Fundo FIX VII",new BigDecimal(700.00),selecionado,Color.rgb(53, 194, 209)));
-        listaFundos.add(new Fundos(4,"Fundo FIX VIII",new BigDecimal(300.00),selecionado,Color.rgb(193, 37, 82)));
-        listaFundos.add(new Fundos(5,"Fundo FIX IX",new BigDecimal(400.00),selecionado,Color.rgb(255, 102, 0)));
-        listaFundos.add(new Fundos(6,"Fundo Composto 10D",new BigDecimal(345.00),selecionado,Color.rgb(106, 150, 31)));
-        listaFundos.add(new Fundos(7,"Fundo Composto 20D",new BigDecimal(145.00),selecionado,Color.rgb(179, 100, 53)));
-        listaFundos.add(new Fundos(8,"Fundo Composto 30D",new BigDecimal(100.00),selecionado,Color.rgb(254, 247, 120)));
-        listaFundos.add(new Fundos(9,"Fundo Composto 40D",new BigDecimal(154.00),selecionado,Color.rgb(217, 80, 138)));
-        atualizarValorTotalTextView();
+        listaFundos.add(new Fundos(0,"Selecione ...", new BigDecimal(25.00),false, Color.TRANSPARENT));
+        listaFundos.add(new Fundos(1,"Fundo FIX V",new BigDecimal(0.00),!selecionado,Color.rgb(254, 149, 7)));
+        listaFundos.add(new Fundos(2,"Fundo FIX VI",new BigDecimal(0.00),!selecionado,Color.rgb(106, 167, 134)));
+        listaFundos.add(new Fundos(3,"Fundo FIX VII",new BigDecimal(10.00),selecionado,Color.rgb(53, 194, 209)));
+        listaFundos.add(new Fundos(4,"Fundo FIX VIII",new BigDecimal(15.00),selecionado,Color.rgb(193, 37, 82)));
+        listaFundos.add(new Fundos(5,"Fundo FIX IX",new BigDecimal(10.00),selecionado,Color.rgb(255, 102, 0)));
+        listaFundos.add(new Fundos(6,"Fundo Composto 10D",new BigDecimal(10.00),selecionado,Color.rgb(106, 150, 31)));
+        listaFundos.add(new Fundos(7,"Fundo Composto 20D",new BigDecimal(10.00),selecionado,Color.rgb(179, 100, 53)));
+        listaFundos.add(new Fundos(8,"Fundo Composto 30D",new BigDecimal(10.00),selecionado,Color.rgb(254, 247, 120)));
+        listaFundos.add(new Fundos(9,"Fundo Composto 40D",new BigDecimal(10.00),selecionado,Color.rgb(217, 80, 138)));
     }
 
-    private BigDecimal valorTotal(List<Fundos> lista){
+    private BigDecimal valorTotalItemSelecionados(List<Fundos> lista){
         BigDecimal valor = BigDecimal.ZERO;
 
         for(Fundos f : lista){
@@ -177,101 +222,54 @@ public class InputPieChart extends AppCompatActivity implements AdapterView.OnIt
                 valor = valor.add(f.getValor());
             }
         }
-       return valor;
+        return valor;
     }
 
-    private void atualizarValorTotalTextView(){
-        textValor.setText("R$ " +valorTotal(listaFundos).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-    }
+    private void atualizarListaPorcentagem(){
+        if(listaPorcentagem == null){
+            listaPorcentagem = new ArrayList<>();
+        }
 
-    private void removerItemPie(){
-        for(Fundos f : listaFundos){
-            if(f.getId() == fundoSelecionado.getId() && f.isSelecionado()){
-                f.setValor(BigDecimal.ZERO);
-                f.setSelecionado(false);
-                lPieChart.setData(atualizarDadosPizza(listaFundos));
-                lPieChart.animateY(tempoAnimacao);
-                lPieChart.notifyDataSetChanged();
-                lPieChart.invalidate();
-                atualizarValorTotalTextView();
-                lEditTextValorFundos.setText("");
-                lPieChart.setCenterText("");
-                lPieChart.highlightValues(null);
-                fundoSelecionado = listaFundos.get(0);
-                selecionarFundo();
-                setItemNoSpinner(fundoSelecionado);
-                break;
-            }
+        int fator = 5;
+        Integer limite = Integer.valueOf(valorTotalItemSelecionados(listaFundos).toString());
+
+        listaPorcentagem.add("Selecione...");
+
+        for(int i =fator ; i <= limite ; i+=fator){
+            listaPorcentagem.add(i + " %");
         }
     }
 
-    private void adicionarItemPie(){
-        BigDecimal valor = BigDecimal.ZERO;
-        try {
-            valor = new BigDecimal(lEditTextValorFundos.getText().toString());
-        } catch (Exception e){}
 
-        if(lEditTextValorFundos.getText().toString().trim().isEmpty() || BigDecimal.ZERO.compareTo(valor) >= 0 ){
-            Toast.makeText(this,"Favor informe um valor maior que zero",Toast.LENGTH_LONG).show();
+    private void setlSpinnerPorcentagem(String valorSelecionado){
+        if(lSpinnerPorcentagem != null && lSpinnerPorcentagem.getCount() <=0){
             return;
         }
 
-        for(Fundos f : listaFundos){
-            if(f.getId() == fundoSelecionado.getId()){
-                f.setSelecionado(true);
-                f.setValor(valor);
-                break;
+        for(int i=0; i< lSpinnerPorcentagem.getCount(); i++){
+            Object item =lSpinnerPorcentagem.getItemAtPosition(i);
+            if(item != null && valorSelecionado.equalsIgnoreCase(((String) item).replace("%","").trim()) ){
+                lSpinnerPorcentagem.setSelection(i);
+                return;
             }
         }
-
-        lPieChart.setData(atualizarDadosPizza(listaFundos));
-        lPieChart.animateY(tempoAnimacao);
-        lPieChart.notifyDataSetChanged();
-        lPieChart.invalidate();
-        atualizarValorTotalTextView();
-        selecionarItemNoGrafico();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_input_pie_chart);
+    private void setSpinnerFundos(Fundos fundo){
+        if(lSpinnerFundos != null &&lSpinnerFundos.getCount() <=0){
+            return;
+        }
 
-        textValor = (TextView) findViewById((R.id.valorTotal));
-
-        botaoInserir = (Button) findViewById(R.id.botaoInserir);
-        botaoInserir.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adicionarItemPie();
+        for(int i=0; i< lSpinnerFundos.getCount(); i++){
+            Object item =lSpinnerFundos.getItemAtPosition(i);
+            if(item != null && ((Fundos) item).getId() == fundo.getId()){
+                lSpinnerFundos.setSelection(i);
+                return;
             }
-        });
-
-        btnAdicionar = (ImageButton) findViewById(R.id.adicionarItem);
-        btnAdicionar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adicionarItemPie();
-            }
-        });
-        btnRemover = (ImageButton) findViewById(R.id.removerItem);
-        btnRemover.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                removerItemPie();
-            }
-        });
-
-
-        inicializarListaFundos();
-
-        inicializarPizza(listaFundos);
-        inicializarSpinner();
-
-        lEditTextValorFundos = (EditText) findViewById(R.id.etValor);
+        }
     }
 
-    private BigDecimal selecionarItemNoGrafico(){
+    private BigDecimal selecionarFundoNoGrafico(Fundos fundo){
         int size = lPieChart.getData().getDataSet().getEntryCount();
         int index = -1;
         BigDecimal valor = BigDecimal.ZERO;
@@ -281,7 +279,7 @@ public class InputPieChart extends AppCompatActivity implements AdapterView.OnIt
                 Entry e = lPieChart.getData().getDataSet().getEntryForIndex(i);
                 if(e.getData() instanceof Fundos){
                     Fundos f = (Fundos) e.getData();
-                    if(f.getId() == fundoSelecionado.getId()){
+                    if(f.getId() == fundo.getId()){
                         index = i;
                         valor = f.getValor();
                     }
@@ -291,66 +289,81 @@ public class InputPieChart extends AppCompatActivity implements AdapterView.OnIt
         if(size > 0 && index >= 0) {
             Highlight highlight = new Highlight(index, 0, 0);
             lPieChart.highlightValue(highlight, false);
-            lPieChart.setCenterText(textoCentral(fundoSelecionado.getDescricao(), valor, valorTotal(listaFundos)));
+            lPieChart.setCenterText(textoCentral(fundo.getDescricao(),BigDecimal.ZERO,BigDecimal.ZERO));
             lPieChart.setCenterTextColor(Color.BLACK);
         }
 
         return valor;
     }
 
-    public void selecionarFundo(){
-        if(fundoSelecionado.getId() == 0){
-            lEditTextValorFundos.setText("");
-            lEditTextValorFundos.setEnabled(false);
+    private boolean ultrapassou100(){
+        if(valorTotalItemSelecionados(listaFundos).compareTo(new BigDecimal(100)) >= 0){
+            lSpinnerPorcentagem.setEnabled(false);
+            return true;
         } else {
-            lEditTextValorFundos.setEnabled(true);
-            BigDecimal valor = selecionarItemNoGrafico();
-            fundoSelecionado.setValor(valor);
-            lEditTextValorFundos.setText(valor.toString());
+            lSpinnerPorcentagem.setEnabled(true);
+            return false;
         }
     }
 
-    public void onItemSelected(AdapterView<?> parent, View view,
-                               int pos, long id) {
-        // An item was selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos)
-
-        if(parent.getItemAtPosition(pos) instanceof Fundos){
-            fundoSelecionado = (Fundos) parent.getItemAtPosition(pos);
-            selecionarFundo();
-            selecionarItemNoGrafico();
+    private void selecionarPorcentagemSpinner(BigDecimal valor){
+        if(valor != null) {
+            setlSpinnerPorcentagem(valor.toString());
         }
+        ultrapassou100();
+
+
     }
 
-    public void onNothingSelected(AdapterView<?> parent) {
-        // Another interface callback
+    private void atualizarListaSpinnerPorcentagem(){
+        ArrayAdapter<String> dataAdapterPorcentagem = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, listaPorcentagem);
+        lSpinnerPorcentagem.setAdapter(dataAdapterPorcentagem);
+
     }
 
-    private void setItemNoSpinner(Fundos fundoEscolhido){
-        if(lSpinnerFundos != null &&lSpinnerFundos.getCount() <=0){
-            return;
-        }
+    private void inicializarSpinner(){
+        lSpinnerFundos = (Spinner) findViewById(R.id.spinnerFundosText);
+        lSpinnerPorcentagem = (Spinner) findViewById(R.id.spinnerPorcentagemText);
 
-        for(int i=0; i< lSpinnerFundos.getCount(); i++){
-            Object item =lSpinnerFundos.getItemAtPosition(i);
-            if(item != null && ((Fundos) item).getId() == fundoEscolhido.getId()){
-                lSpinnerFundos.setSelection(i);
-                return;
+        ArrayAdapter<Fundos> dataAdapter = new ArrayAdapter<Fundos>(this,
+                android.R.layout.simple_spinner_item, listaFundos);
+
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        lSpinnerFundos.setAdapter(dataAdapter);
+        lSpinnerFundos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(parent.getItemAtPosition(position) instanceof Fundos){
+                    Fundos fundo = (Fundos) parent.getItemAtPosition(position);
+                    BigDecimal valor = selecionarFundoNoGrafico(fundo);
+                    selecionarPorcentagemSpinner(valor);
+                }
             }
-        }
-    }
 
-    @Override
-    public void onValueSelected(Entry e, Highlight h) {
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
-        if(e.getData()!= null && e.getData() instanceof Fundos){
-            Fundos f = (Fundos) e.getData();
-            lPieChart.setCenterText(textoCentral(f.getDescricao(),f.getValor(),valorTotal(listaFundos)));
-            lPieChart.setCenterTextColor(Color.BLACK);
-            lPieChart.setCenterTextSize(16f);
-            lEditTextValorFundos.setText(f.getValor().toString());
-            setItemNoSpinner(f);
-        }
+            }
+        });
+
+        atualizarListaSpinnerPorcentagem();
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+
+        lSpinnerPorcentagem.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
     }
 
     private SpannableString textoCentral(String fundo, BigDecimal valorItem, BigDecimal valorTotal){
@@ -377,11 +390,6 @@ public class InputPieChart extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
-    @Override
-    public void onNothingSelected() {
-        lPieChart.setCenterText("");
-        Toast.makeText(this,"PieChart nothing seletecd",Toast.LENGTH_LONG ).show();
-    }
     private int alturaTela() {
         Display display = getWindowManager().getDefaultDisplay();
         String displayName = display.getName();  // minSdkVersion=17+
@@ -410,5 +418,4 @@ public class InputPieChart extends AppCompatActivity implements AdapterView.OnIt
         Log.i(TAG, "ydpi         = " + ydpi);
         return height;
     }
-
 }

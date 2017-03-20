@@ -43,6 +43,11 @@ public class Grafico {
     private float porcentagemTransparenciaCentroPizza = 55;
     private Descricao textoCentroPizza;
 
+    private float offSetDireita;
+    private float offSetEsquerda;
+    private float offSetCima;
+    private float offSetBaixo;
+
     public boolean isHabilitarGirarAoToque() {
         return habilitarGirarAoToque;
     }
@@ -217,4 +222,35 @@ public class Grafico {
         this.tamanhoDestaquePorcaoSelecionadaPizza = tamanhoDestaquePorcaoSelecionadaPizza;
     }
 
+    public float getOffSetDireita() {
+        return offSetDireita;
+    }
+
+    public void setOffSetDireita(float offSetDireita) {
+        this.offSetDireita = offSetDireita;
+    }
+
+    public float getOffSetEsquerda() {
+        return offSetEsquerda;
+    }
+
+    public void setOffSetEsquerda(float offSetEsquerda) {
+        this.offSetEsquerda = offSetEsquerda;
+    }
+
+    public float getOffSetCima() {
+        return offSetCima;
+    }
+
+    public void setOffSetCima(float offSetCima) {
+        this.offSetCima = offSetCima;
+    }
+
+    public float getOffSetBaixo() {
+        return offSetBaixo;
+    }
+
+    public void setOffSetBaixo(float offSetBaixo) {
+        this.offSetBaixo = offSetBaixo;
+    }
 }
